@@ -1,25 +1,30 @@
-import logo from './logo.svg';
 import './App.css';
+import { Routes, Route} from 'react-router-dom'
+import SignInNavigation from "./routes/navbar/signInNav/navigation.component"
+import Login from './routes/login/login.component';
+import "bootstrap/dist/css/bootstrap.min.css"
+import DriveNavigation from './routes/navbar/fileListingNav/driveNav.component';
+import { Provider } from 'react-redux';
+import Protected from './routes/protected/protected.component';
+import store from './store/reducers';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <Routes>
+        <Route element={<Protected/>}>
+          <Route path="/my-drive" element={
+            <DriveNavigation/>
+          }/>
+        </Route>
+        <Route path="/" element={<SignInNavigation />}>
+          <Route index element={<Login />}/>
+        </Route>
+      </Routes>
+    </Provider> 
   );
 }
+
+
 
 export default App;
