@@ -4,8 +4,7 @@ import 'firebase/compat/auth';
 import { HandleGoogleLogin, HandleEmailLogin, HandleEmailSignUp, HandleData } from "../../firebase/firebase"
 import { useNavigate } from "react-router-dom";
 import store from '../../store/reducers';
-import { useDispatch } from "react-redux";
-import { setUserId } from "../../store/userSlice";
+
 
 
 const Login = () => {

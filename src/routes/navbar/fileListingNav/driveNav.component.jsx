@@ -1,8 +1,12 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Page, NavigationContainer, AppName, LeftContainer } from '../signInNav/navigation.styles'
-import { AddFile, AddFileDropdown, DropdownContainer, FileOptions } from './driveNav.styles'
+import { AddFile, AddFileDropdown, DropdownContainer, FileOptions, SearchContainer, SearchIcon, SearchTerms } from './driveNav.styles'
 import { useState } from 'react'
 import Popup from '../../popup/popup.component'
+import "bootstrap/dist/css/bootstrap.min.css"
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
 
 
@@ -10,7 +14,13 @@ const DriveNavigation = () => {
     const navigate = useNavigate();
     const [dropdown, setDropdown] = useState(false)
     const [popupOpen, setPopupOpen] = useState(false);
+    const [search, setSearch] = useState('')
 
+    const handleSearch = (event) => {
+        event.preventDefault()
+        setSearch(event.target.value)
+        // Add filtering out here
+    }
 
     const changeDropdown = () => {
         setDropdown(!dropdown)
@@ -39,6 +49,12 @@ const DriveNavigation = () => {
                 <LeftContainer>
                     <AppName onClick={homeButton}>PDF Master</AppName>
                 </LeftContainer>
+                <SearchContainer>
+                    <SearchTerms type="text" placeholder="File Lookup" onChange={handleSearch}/>
+                    <SearchIcon>
+                        <FontAwesomeIcon icon={faSearch} size="xl" />
+                    </SearchIcon>
+                </SearchContainer>
                 <AddFileDropdown>
                     <div onClick={logOut}>
                         Logout

@@ -27,7 +27,7 @@ export const UploadForm = styled.form `
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -100px;
+  margin-top: -130px;
   margin-left: -250px;
   height: 200px;
   width: 90%;
@@ -43,7 +43,7 @@ export const FormText = styled.p `
     line-height: 60%;
     color: black;
     font-family: Arial;
-    margin-top: -22%;
+    margin-top: -26%;
     position: fixed;
     right: 0%;
     top: 84%;

@@ -23,17 +23,21 @@ export const NavigationContainer = styled.div `
 `
 export const LeftContainer = styled.div `
   float: left;
-  padding: 15px;
+  padding: 20px;
+  align-items: center;
+  display: flex;
 `
 export const RightContainer = styled.div `
   float: right;
-  margin: 0 25px;
+  margin: 5px 25px;
   padding: 10px;
   justify-content: flex-end;
 `
 
 export const AppName = styled.h1`
   padding: 0 25px;
+  align-self: flex-end;
+  margin: 0;
 `
 export const User = styled.img`
   border-radius: 50%;

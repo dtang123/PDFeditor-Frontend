@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { RightContainer } from '../signInNav/navigation.styles'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const AddFileDropdown = styled.div `
     position: relative;
@@ -43,4 +44,53 @@ export const AddFile = styled(RightContainer)`
     &:hover {
         transform: scale(1.1); 
     }
+`
+
+export const SearchIcon = styled.button `
+    background-color: transparent;
+    font-size: 18px;
+    padding: 6px 9px;
+    margin-left:-45px;
+    border:none;
+    color: #6c6c6c;
+    transition: all .4s;
+    z-index: 10;
+    &:hover {
+        transform: scale(1.2);
+        cursor: pointer;
+        color: black;
+    }
+    &:focus {
+        outline:none;
+        color:black;
+    }
+`
+
+export const SearchTerms = styled.input `
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    padding: 12px 45px 12px 15px;
+    background-color: #eaeaeb;
+    color: #6c6c6c;
+    border-radius: 6px;
+    border:none;
+    transition: all .4s;
+    &:focus {
+        border:none;
+        outline:none;
+        box-shadow: 0 1px 12px #b8c6db;
+        -moz-box-shadow: 0 1px 12px #b8c6db;
+        -webkit-box-shadow: 0 1px 12px #b8c6db;
+    }
+`
+
+
+export const SearchContainer = styled.div `
+    width: 30%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
 `
