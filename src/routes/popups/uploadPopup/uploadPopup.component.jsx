@@ -1,13 +1,19 @@
 import React, {useState, useRef} from 'react';
-import { ButtonRow, CheckboxLabel, CloseButton, FormInput, FormText, ModalContainer, PopupContainer, StyledCheckbox, CheckboxLabelAfter, UploadButton, UploadForm, FileName, DeleteButton, FileNameContainer } from './popup.styles';
-import { fileUpload } from '../../backend/fileSend';
-
+import { ButtonRow, CheckboxLabel, CloseButton, FormInput, FormText, ModalContainer, PopupContainer, StyledCheckbox, CheckboxLabelAfter, UploadButton, UploadForm, FileName, DeleteButton, FileNameContainer, FileNameInput } from './uploadPopup.styles';
+import { fileUpload } from '../../../backend/fileSend';
+import store from '../../../store/reducers';
 
 const Popup = ({ isOpen, onClose }) => {
     const [isChecked, setIsChecked] = useState(false);
     const [fileInputted, setFileInputted] = useState(false);
-    const [fileName, setFileName] = useState('')
+    const [fileUploadName, setFileUploadName] = useState('')
+    const [fileName, setFileName] = useState('');
     const fileInputRef = useRef(null);
+
+    const handleFileNameChange = (event) => {
+        event.preventDefault();
+        setFileName(event.target.value);
+    }
 
     const handleCheckboxChange = (e) => {
         setIsChecked(e.target.checked);
@@ -17,7 +23,7 @@ const Popup = ({ isOpen, onClose }) => {
         const files = event.target.files;
         if (files.length > 0) {
             const uploadedFileName = files[0].name;
-            setFileName(uploadedFileName)
+            setFileUploadName(uploadedFileName)
             setFileInputted(true)
         }
     }
@@ -26,7 +32,7 @@ const Popup = ({ isOpen, onClose }) => {
         if (fileInputRef.current) {
             fileInputRef.current.value = null;
         }
-        setFileName('')
+        setFileUploadName('')
         setFileInputted(false)
     }
 
@@ -35,10 +41,14 @@ const Popup = ({ isOpen, onClose }) => {
         var formData = new FormData()
         console.log(fileInputRef.current.files[0].name)
         const file = fileInputRef.current.files[0]
+        if (fileName) {
+            setFileName(fileInputRef.current.files[0].name)
+        }
         formData.append('file', file)
         formData.append('extractText', isChecked)
+        formData.append('fileName', fileName)
         console.log(localStorage)
-        formData.append('userId', localStorage.getItem('uid'))
+        formData.append('userId', store.getState().user.userId)
         console.log(isChecked)
         const response = await fileUpload(formData)
         handleFileDelete()
@@ -56,7 +66,7 @@ const Popup = ({ isOpen, onClose }) => {
                     {fileInputted && (
                         <>
                             <FileNameContainer>
-                                <FileName>{fileName}</FileName>
+                                <FileName>{fileUploadName}</FileName>
                             </FileNameContainer>
                             
                         </>
@@ -72,6 +82,9 @@ const Popup = ({ isOpen, onClose }) => {
                             Checkbox Label
                             <CheckboxLabelAfter />
                         </CheckboxLabel>
+                    </ButtonRow>
+                    <ButtonRow>
+                        <FileNameInput onChange={handleFileNameChange} placeholder='Enter File Name'></FileNameInput>
                     </ButtonRow>
                     <ButtonRow>
                         <CloseButton onClick={onClose}>Close</CloseButton>

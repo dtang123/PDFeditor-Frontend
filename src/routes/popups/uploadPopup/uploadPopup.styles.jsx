@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import Modal from 'react-modal';
+import { InputBar } from '../../navbar/fileListingNav/driveNav.styles';
 
 export const PopupContainer = styled(Modal) `
     position: absolute;
@@ -27,7 +28,7 @@ export const UploadForm = styled.form `
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -130px;
+  margin-top: -140px;
   margin-left: -250px;
   height: 200px;
   width: 90%;
@@ -43,7 +44,7 @@ export const FormText = styled.p `
     line-height: 60%;
     color: black;
     font-family: Arial;
-    margin-top: -26%;
+    margin-top: -28%;
     position: fixed;
     right: 0%;
     top: 84%;
@@ -81,7 +82,7 @@ export const ButtonRow = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-top: 15px;
+  margin-top: 10px;
   padding-bottom: 10px;
   text-align: center;
 `
@@ -164,3 +165,8 @@ export const StyledCheckbox = styled(CheckboxInput)`
     width: 130px;
   }
 `;
+
+export const FileNameInput = styled(InputBar)`
+  padding-top: 7px;
+  padding-bottom: 7px;
+`

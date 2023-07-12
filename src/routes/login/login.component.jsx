@@ -4,6 +4,8 @@ import 'firebase/compat/auth';
 import { HandleGoogleLogin, HandleEmailLogin, HandleEmailSignUp, HandleData } from "../../firebase/firebase"
 import { useNavigate } from "react-router-dom";
 import store from '../../store/reducers';
+import { useDispatch } from "react-redux";
+import { setUserId } from "../../store/userSlice";
 
 
 
@@ -12,7 +14,9 @@ const Login = () => {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const hello = null;
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
 
     const handleNameChange = (event) =>{
@@ -31,34 +35,40 @@ const Login = () => {
       setAuthMode(authMode === "signin" ? "signup" : "signin")
     }
 
-    useEffect(() =>  {
-      const token = localStorage.getItem('token');
-      const expirationTime = localStorage.getItem('expirationTime');
-      const userID = localStorage.getItem('uid')
-      const currentTime = Math.floor(Date.now() / 1000); // Get the current time in seconds
+    const SetUser = (ID) => {
+      dispatch(setUserId(ID))
+      console.log(store.getState().user.userId);
+    }
 
-      const fetchData = async () => {
-        const res = await fetch('http://localhost:3001/api/google-auth/token', {
-          method: 'POST',
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        })
-        const data = await res.json();
-        return data
-      }
+    // useEffect(() =>  {
+    //   const token = localStorage.getItem('token');
+    //   const expirationTime = localStorage.getItem('expirationTime');
+    //   const userID = localStorage.getItem('uid')
+    //   const currentTime = Math.floor(Date.now() / 1000); // Get the current time in seconds
 
-      if (userID && token && expirationTime && currentTime < expirationTime) {
-        // Token is valid, include it in the request headers
-        fetchData().then((data) => {
-          if (data && data.success) {
-            HandleData(data)
-            navigate('/my-drive')
-          }
-        }
-        ).catch(console.error)
-      } 
-    }, [])
+    //   const fetchData = async () => {
+    //     const res = await fetch('http://localhost:3001/api/google-auth/token', {
+    //       method: 'POST',
+    //       headers: {
+    //         authorization: `Bearer ${token}`,
+    //       },
+    //     })
+    //     const data = await res.json();
+    //     return data
+    //   }
+
+    //   if (userID && token && expirationTime && currentTime < expirationTime) {
+    //     // Token is valid, include it in the request headers
+    //     fetchData().then((data) => {
+    //       if (data && data.success) {
+    //         HandleData(data)
+    //         SetUser(localStorage.getItem('uid'))
+    //         navigate('/my-drive')
+    //       }
+    //     }
+    //     ).catch(console.error)
+    //   } 
+    // }, [hello])
   
     const emailSignIn = async (event) => {
       event.preventDefault()
@@ -68,6 +78,8 @@ const Login = () => {
         setEmail('')
         setPassword('')
         if (response && response.success) {
+          SetUser(localStorage.getItem("uid"));
+          console.log("navigate");
           navigate('/my-drive')
         }
       }
@@ -93,16 +105,21 @@ const Login = () => {
       }
       
     }
-
-    const handleGoogleButton = async () => {
-      console.log("login")
-      const response = await HandleGoogleLogin();
-      if (response && response.success) {
-        console.log(store.getState().user)
-        console.log(store.getState().user.userId)
-        navigate('/my-drive')
-      }
-    }
+    const handleGoogleButton = async (event) => {
+        event.preventDefault()
+        console.log("login");
+        await HandleGoogleLogin().then((response) => {
+          console.log(response);
+          if (response && response.success) {
+            SetUser(localStorage.getItem("uid"));
+            console.log("navigate");
+            console.log(store.getState().user.userId)
+            navigate('/my-drive');
+          }
+        }).catch((error) => {
+          console.log(error);
+        })
+      };
     
   
     if (authMode === "signin") {
@@ -194,7 +211,7 @@ const Login = () => {
               />
             </div>
             <div className="d-grid gap-2 mt-3">
-              <GoogleLogIn onClick={handleGoogleButton} />
+              <button onClick={handleGoogleButton} />
               <button className="btn btn-primary" onClick={emailSignUp}>
                 Submit
               </button>

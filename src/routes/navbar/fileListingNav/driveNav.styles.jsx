@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { RightContainer } from '../signInNav/navigation.styles'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const AddFileDropdown = styled.div `
     position: relative;
@@ -66,7 +66,7 @@ export const SearchIcon = styled.button `
     }
 `
 
-export const SearchTerms = styled.input `
+export const InputBar = styled.input `
     width: 100%;
     font-family: 'Montserrat', sans-serif;
     font-size: 16px;

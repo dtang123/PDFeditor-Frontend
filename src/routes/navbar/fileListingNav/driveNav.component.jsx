@@ -1,19 +1,20 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Page, NavigationContainer, AppName, LeftContainer } from '../signInNav/navigation.styles'
-import { AddFile, AddFileDropdown, DropdownContainer, FileOptions, SearchContainer, SearchIcon, SearchTerms } from './driveNav.styles'
+import { AddFile, AddFileDropdown, DropdownContainer, FileOptions, InputBar, SearchContainer, SearchIcon } from './driveNav.styles'
 import { useState } from 'react'
-import Popup from '../../popup/popup.component'
+import Popup from '../../popups/uploadPopup/uploadPopup.component'
 import "bootstrap/dist/css/bootstrap.min.css"
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import NewPopup from '../../popups/newPopup/newPopup.component'
+import { LogOut } from '../../../firebase/firebase'
 
 
 
 const DriveNavigation = () => {
     const navigate = useNavigate();
     const [dropdown, setDropdown] = useState(false)
-    const [popupOpen, setPopupOpen] = useState(false);
+    const [uploadPopupOpen, setUploadPopupOpen] = useState(false);
+    const [newPopupOpen, setNewPopupOpen] = useState(false);
     const [search, setSearch] = useState('')
 
     const handleSearch = (event) => {
@@ -26,12 +27,19 @@ const DriveNavigation = () => {
         setDropdown(!dropdown)
     }
 
-    const openPopup = () => {
-        setPopupOpen(true);
+    const openNewPopup = () => {
+        setNewPopupOpen(true)
+        setUploadPopupOpen(false)
+    }
+
+    const openUploadPopup = () => {
+        setUploadPopupOpen(true);
+        setNewPopupOpen(false)
     };
     
     const closePopup = () => {
-        setPopupOpen(false);
+        setUploadPopupOpen(false);
+        setNewPopupOpen(false)
     };
 
     const homeButton = () => {
@@ -40,6 +48,7 @@ const DriveNavigation = () => {
 
     const logOut = () => {
         localStorage.removeItem("uid")
+        LogOut()
         navigate('/')
     }
 
@@ -50,9 +59,8 @@ const DriveNavigation = () => {
                     <AppName onClick={homeButton}>PDF Master</AppName>
                 </LeftContainer>
                 <SearchContainer>
-                    <SearchTerms type="text" placeholder="File Lookup" onChange={handleSearch}/>
+                    <InputBar type="text" placeholder="File Lookup" onChange={handleSearch}/>
                     <SearchIcon>
-                        <FontAwesomeIcon icon={faSearch} size="xl" />
                     </SearchIcon>
                 </SearchContainer>
                 <AddFileDropdown>
@@ -65,17 +73,18 @@ const DriveNavigation = () => {
                     {
                         dropdown &&
                         <DropdownContainer>
-                            <FileOptions>
+                            <FileOptions onClick={openNewPopup}>
                                 Blank File
                             </FileOptions>
-                            <FileOptions onClick={openPopup}>
+                            <FileOptions onClick={openUploadPopup}>
                                 From Computer
                             </FileOptions>
                         </DropdownContainer>
                     }
                 </AddFileDropdown> 
             </NavigationContainer>
-            <Popup isOpen={popupOpen} onClose={closePopup}/>
+            <Popup isOpen={uploadPopupOpen} onClose={closePopup}/>
+            <NewPopup isOpen={newPopupOpen} onClose={closePopup}></NewPopup>
             <Outlet></Outlet>
         </Page>
     )

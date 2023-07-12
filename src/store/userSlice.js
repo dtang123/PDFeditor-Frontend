@@ -12,3 +12,4 @@ const userSlice = createSlice({
 
 export const { setUserId } = userSlice.actions;
 export default userSlice.reducer;
+export const selectUserId = (state) => state.user.userId;
