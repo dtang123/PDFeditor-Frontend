@@ -17,11 +17,6 @@ const DriveNavigation = () => {
     const [newPopupOpen, setNewPopupOpen] = useState(false);
     const [search, setSearch] = useState('')
 
-    const handleSearch = (event) => {
-        event.preventDefault()
-        setSearch(event.target.value)
-        // Add filtering out here
-    }
 
     const changeDropdown = () => {
         setDropdown(!dropdown)
