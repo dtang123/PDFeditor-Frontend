@@ -66,7 +66,7 @@ export const SearchIcon = styled.button `
     }
 `
 
-export const SearchTerms = styled.input `
+export const InputBar = styled.input `
     width: 100%;
     font-family: 'Montserrat', sans-serif;
     font-size: 16px;

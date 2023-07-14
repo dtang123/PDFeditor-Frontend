@@ -67,49 +67,34 @@ export const HandleData = (data) => {
 //   }
 // };
 
-export const HandleGoogleLogin = async () => {
-  const provider = new GoogleAuthProvider();
-  const auth = getAuth();
-  signInWithPopup(auth, provider)
-    .then(async (result) => {
-      // This gives you a Google Access Token. You can use it to access the Google API.
+  export const HandleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
-      // The signed-in user info.
       const token = await result.user.getIdToken();
-      // IdP data available using getAdditionalUserInfo(result)
-      // ...
-      try {
-        const response = await fetch('http://localhost:3001/api/google-auth', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token }),
-        });
-        
-        const data = await response.json();
-        HandleData(data);
-        return data; // Return the response from the fetch call
-      } catch (error) {
-        console.error('Error calling backend API:', error);
-        throw error; // Throw the error to be caught in the outer catch block if necessary
-      }
-    }).catch((error) => {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.customData.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      // ...
-    })
-};
+  
+      const response = await fetch('http://localhost:3001/api/google-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+  
+      const data = await response.json();
+      HandleData(data);
+      return data;
+    } catch (error) {
+      console.error('Error calling backend API:', error);
+      throw error;
+    }
+  };
+  
 
 
 export const HandleEmailLogin = async (email, password) => {
     try {
-      
       const result = await signInWithEmailAndPassword(auth, email, password)
       const token = await result.user.getIdToken();
       try {

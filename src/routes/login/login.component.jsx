@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { AuthForm, AuthFormContainer, AuthFormContent, AuthFormTitle, AuthFormLabel, GoogleLogIn } from "./login.styles"
 import 'firebase/compat/auth';
 import { HandleGoogleLogin, HandleEmailLogin, HandleEmailSignUp, HandleData } from "../../firebase/firebase"
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import store from '../../store/reducers';
 import { useDispatch } from "react-redux";
 import { setUserId } from "../../store/userSlice";
@@ -14,7 +14,6 @@ const Login = () => {
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const hello = null;
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -80,7 +79,7 @@ const Login = () => {
         if (response && response.success) {
           SetUser(localStorage.getItem("uid"));
           console.log("navigate");
-          navigate('/my-drive')
+          return navigate('/my-drive')
         }
       }
       else {
@@ -105,16 +104,17 @@ const Login = () => {
       }
       
     }
+  
     const handleGoogleButton = async (event) => {
         event.preventDefault()
         console.log("login");
-        await HandleGoogleLogin().then((response) => {
+        HandleGoogleLogin().then((response) => {
           console.log(response);
           if (response && response.success) {
             SetUser(localStorage.getItem("uid"));
             console.log("navigate");
             console.log(store.getState().user.userId)
-            navigate('/my-drive');
+            return navigate("./my-drive", { replace: true })
           }
         }).catch((error) => {
           console.log(error);

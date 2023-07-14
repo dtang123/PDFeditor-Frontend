@@ -12,3 +12,16 @@ export const fileUpload = async (data) => {
       console.error('Error calling backend API:', error);
     }
 }
+
+export const fileUploadBlank = async (data) => {
+  
+  try {
+    const res = await axios.post('http://localhost:3001/api/upload/blank',
+      data
+    );
+    const response = await res;
+    return response
+  } catch (error) {
+    console.error('Error calling backend API:', error);
+  }
+}
