@@ -94,6 +94,7 @@ export const SearchContainer = styled.div `
     transform: translate(-50%, -50%);
     display: flex;
 `
+
 export const MyDrivePage = styled(Page) `
-    overflow-y: hidden;
+    overflow: hidden;
 `

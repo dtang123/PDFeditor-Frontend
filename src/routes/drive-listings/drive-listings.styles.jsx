@@ -4,7 +4,8 @@ export const DrivePage = styled.div `
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
-    height: 100vh;
+    max-height: calc(100vh - 100px);
+    overflow: hidden;
 `
 
 export const SideBar = styled.div `
@@ -22,12 +23,13 @@ export const FileListingContainer = styled.div `
     padding: 1rem;
     background-color: #F5F5F5;
     border-radius: 1%;
+    
 `
 
 export const ListingColumn = styled.div `
-flex: 1;
+    flex: 1;
     overflow-y: scroll;
-    maxHeight: calc(100vh - 200px);
+    max-height: calc(100vh - 200px);
 `
 
 export const FileListing = styled.div `
