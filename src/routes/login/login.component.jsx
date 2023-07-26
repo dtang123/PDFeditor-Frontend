@@ -5,7 +5,10 @@ import { HandleGoogleLogin, HandleEmailLogin, HandleEmailSignUp, HandleData } fr
 import { Navigate, useNavigate } from "react-router-dom";
 import store from '../../store/reducers';
 import { useDispatch } from "react-redux";
+import { setFiles } from "../../store/filesSlice";
+import jwt_decode from 'jwt-decode';
 import { setUserId } from "../../store/userSlice";
+
 
 
 
@@ -32,11 +35,6 @@ const Login = () => {
 
     const changeAuthMode = () => {
       setAuthMode(authMode === "signin" ? "signup" : "signin")
-    }
-
-    const SetUser = (ID) => {
-      dispatch(setUserId(ID))
-      console.log(store.getState().user.userId);
     }
 
     // useEffect(() =>  {
@@ -68,6 +66,24 @@ const Login = () => {
     //     ).catch(console.error)
     //   } 
     // }, [hello])
+    const SetUser = async (userID, dataFiles) => {
+      await dispatch(setUserId(userID))
+      await dispatch(setFiles(dataFiles))
+      console.log(store.getState().user.userId);
+    }
+
+    const HandleData = async (data) => {
+      const token = data.token;
+      const decodedToken = jwt_decode(token);
+      const userID = decodedToken.uid;
+      const expirationTime = decodedToken.exp;
+      localStorage.setItem('token', token);
+      localStorage.setItem('expirationTime', expirationTime);
+      localStorage.setItem('uid', userID);
+      await SetUser(userID, data.files);
+      console.log(store.getState().files)
+    }
+    
   
     const emailSignIn = async (event) => {
       event.preventDefault()
@@ -77,7 +93,7 @@ const Login = () => {
         setEmail('')
         setPassword('')
         if (response && response.success) {
-          SetUser(localStorage.getItem("uid"));
+          HandleData(response)
           console.log("navigate");
           return navigate('/my-drive')
         }
@@ -85,7 +101,6 @@ const Login = () => {
       else {
         alert("Password has to be at least 8 characters")
       }
-      
     }
 
     const emailSignUp = async (event) => {
@@ -96,6 +111,7 @@ const Login = () => {
         setEmail('')
         setPassword('')
         if (response && response.success) {
+          HandleData(response)
           navigate('/my-drive')
         }
       }
@@ -111,9 +127,10 @@ const Login = () => {
         HandleGoogleLogin().then((response) => {
           console.log(response);
           if (response && response.success) {
-            SetUser(localStorage.getItem("uid"));
+            HandleData(response)
             console.log("navigate");
             console.log(store.getState().user.userId)
+            console.log(store.getState().files.fileObjs)
             return navigate("./my-drive", { replace: true })
           }
         }).catch((error) => {

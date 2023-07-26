@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { RightContainer } from '../signInNav/navigation.styles'
+import { Page, RightContainer } from '../signInNav/navigation.styles'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const AddFileDropdown = styled.div `
@@ -93,4 +93,7 @@ export const SearchContainer = styled.div `
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
+`
+export const MyDrivePage = styled(Page) `
+    overflow-y: hidden;
 `

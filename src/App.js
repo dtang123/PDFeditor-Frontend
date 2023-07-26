@@ -6,15 +6,17 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import DriveNavigation from './routes/navbar/fileListingNav/driveNav.component';
 
 import Protected from './routes/protected/protected.component';
+import DriveListings from './routes/drive-listings/drive-listings.component';
 
 
 const App = () => {
   return (
       <Routes>
-        <Route path="/my-drive" element={<DriveNavigation />}/>
+        <Route path="/my-drive" element={<DriveNavigation />}>
+          <Route index element={<DriveListings />} />
+        </Route>
         <Route path="/" element={<SignInNavigation />}>
           <Route index element={<Login />} />
-          <Route path="your-mom" element={<div>Your Mom is so bad</div>} />
         </Route>
       </Routes>
   );

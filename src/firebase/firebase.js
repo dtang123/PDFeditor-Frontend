@@ -11,7 +11,7 @@ import {
     signOut,
     onAuthStateChanged,
 } from 'firebase/auth'
-import jwt_decode from 'jwt-decode';
+
 
 
 
@@ -31,41 +31,10 @@ const analytics = getAnalytics(app);
 
 
 
+
 export const auth = getAuth(app);
 
-export const HandleData = (data) => {
-  const token = data.token;
-  const decodedToken = jwt_decode(token);
-  const userID = decodedToken.uid;
-  const expirationTime = decodedToken.exp;
-  localStorage.setItem('token', token);
-  localStorage.setItem('expirationTime', expirationTime);
-  localStorage.setItem('uid', userID);
-}
 
-// export const HandleGoogleLogin = async (response) => {
-//   try {
-//     const googleProvider = new GoogleAuthProvider();
-//     const result = await signInWithPopup(auth, googleProvider);
-//     const token = await result.user.getIdToken();
-//     try {
-//       const res = await fetch('http://localhost:3001/api/google-auth', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ token }),
-//       });
-//       const data = await res.json();
-//       HandleData(data)
-//       return data;
-//     } catch (error) {
-//       console.error('Error calling backend API:', error);
-//     }
-//   } catch (error) {
-//     console.error('Error signing in with Google:', error);
-//   }
-// };
 
   export const HandleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
@@ -83,7 +52,7 @@ export const HandleData = (data) => {
       });
   
       const data = await response.json();
-      HandleData(data);
+      console.log(data.files);
       return data;
     } catch (error) {
       console.error('Error calling backend API:', error);
@@ -106,7 +75,6 @@ export const HandleEmailLogin = async (email, password) => {
           body: JSON.stringify({ token }),
         });
         const data = await res.json();
-        HandleData(data)
         return data
       } catch (error) {
         console.error('Error calling backend API:', error);
@@ -129,7 +97,6 @@ export const HandleEmailSignUp = async (email, password) => {
             body: JSON.stringify({ token }),
           });
           const data = await res.json();
-          HandleData(data)
           return data
         } catch (error) {
           console.error('Error calling backend API:', error);

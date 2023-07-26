@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom'
-import { Page, NavigationContainer, AppName, LeftContainer } from '../signInNav/navigation.styles'
-import { AddFile, AddFileDropdown, DropdownContainer, FileOptions, InputBar, SearchContainer, SearchIcon } from './driveNav.styles'
+import { NavigationContainer, AppName, LeftContainer } from '../signInNav/navigation.styles'
+import { AddFile, AddFileDropdown, DropdownContainer, FileOptions, InputBar, MyDrivePage, SearchContainer, SearchIcon } from './driveNav.styles'
 import { useState } from 'react'
 import Popup from '../../popups/uploadPopup/uploadPopup.component'
 import "bootstrap/dist/css/bootstrap.min.css"
@@ -52,7 +52,7 @@ const DriveNavigation = () => {
     }
 
     return (
-        <Page>
+        <MyDrivePage>
             <NavigationContainer>
                 <LeftContainer>
                     <AppName onClick={homeButton}>PDF Master</AppName>
@@ -85,7 +85,7 @@ const DriveNavigation = () => {
             <Popup isOpen={uploadPopupOpen} onClose={closePopup}/>
             <NewPopup isOpen={newPopupOpen} onClose={closePopup}></NewPopup>
             <Outlet></Outlet>
-        </Page>
+        </MyDrivePage>
     )
 }
 
