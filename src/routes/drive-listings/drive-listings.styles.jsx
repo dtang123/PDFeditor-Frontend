@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const DrivePage = styled.div `
     display: flex;
@@ -53,11 +54,11 @@ export const NameContainer = styled.div `
 `
 
 export const OwnerContainer = styled.div `
-    width: 20%
+    width: 15%
 `
 
 export const EditContainer = styled.div `
-    width: 20%
+    width: 15%
 `
 export const DriveText = styled.h6 `
     margin: 0;
@@ -66,6 +67,19 @@ export const DriveText = styled.h6 `
         font-size: 20px; /* Increase the font size on hover */
     }
     
+`
+
+export const MiscContainer = styled.div `
+    width: 10%;
+    display: flex;
+    justify-content: space-around;
+`
+
+export const MiscIcon = styled(FontAwesomeIcon)`
+    transition: all 0.2s ease;
+    &:hover {
+        transform: scale(1.3)
+    }
 `
 
 export const Tabs = styled.button `

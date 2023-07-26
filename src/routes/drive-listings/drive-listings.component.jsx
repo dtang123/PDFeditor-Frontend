@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react"
 import Store from "../../store/reducers"
-import { DrivePage, SideBar, FileListingContainer, FileListing, ListingColumn, Tabs, HeaderRow, NameContainer, DriveText, OwnerContainer, EditContainer } from "./drive-listings.styles"
-
+import { DrivePage, SideBar, FileListingContainer, FileListing, ListingColumn, Tabs, HeaderRow, NameContainer, DriveText, OwnerContainer, EditContainer, MiscContainer, MiscIcon } from "./drive-listings.styles"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faShare, faTrash } from '@fortawesome/free-solid-svg-icons'
 
 const DriveListings = () => {
     const [files, setFiles] = useState([])
@@ -62,6 +63,10 @@ const DriveListings = () => {
                                             {getDateString(file.lastEdit)}
                                         </DriveText>
                                     </EditContainer>
+                                    <MiscContainer>
+                                        <MiscIcon icon={faShare} />
+                                        <MiscIcon icon={faTrash} />
+                                    </MiscContainer>
                                 </FileListing>
                             ))
                         }
