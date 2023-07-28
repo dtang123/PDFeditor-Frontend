@@ -82,6 +82,7 @@ export const ButtonRow = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  min-height: 30px;
   margin-top: 10px;
   padding-bottom: 10px;
   text-align: center;

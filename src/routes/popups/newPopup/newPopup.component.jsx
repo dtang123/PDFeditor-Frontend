@@ -4,10 +4,13 @@ import { ModalContainer, ButtonRow, UploadButton } from "../uploadPopup/uploadPo
 import { useState } from "react";
 import { fileUploadBlank } from '../../../backend/fileSend';
 import store from '../../../store/reducers';
-
+import { setFiles } from "../../../store/filesSlice";
+import { useDispatch } from "react-redux";
 
 const NewPopup = ({isOpen, onClose}) => {
-    const [fileName, setFileName] = useState('Untitled Document')
+    const [fileName, setFileName] = useState('Untitled Document');
+    const dispatch = useDispatch();
+
 
     const FieldChange = (event) => {
         setFileName(event.target.value)
@@ -22,6 +25,8 @@ const NewPopup = ({isOpen, onClose}) => {
         formData.append('fileName', fileName)
         formData.append('userId', store.getState().user.userId)
         const response = await fileUploadBlank(formData)
+        await dispatch(setFiles(response.files))
+        console.log(store.getState().files.fileObjs)
         onClose()
     }
 

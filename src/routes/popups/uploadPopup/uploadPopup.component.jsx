@@ -1,7 +1,9 @@
 import React, {useState, useRef} from 'react';
 import { ButtonRow, CheckboxLabel, CloseButton, FormInput, FormText, ModalContainer, PopupContainer, StyledCheckbox, CheckboxLabelAfter, UploadButton, UploadForm, FileName, DeleteButton, FileNameContainer, FileNameInput } from './uploadPopup.styles';
 import { fileUpload } from '../../../backend/fileSend';
+import { setFiles } from "../../../store/filesSlice";
 import store from '../../../store/reducers';
+import { useDispatch } from 'react-redux';
 
 const Popup = ({ isOpen, onClose }) => {
     const [isChecked, setIsChecked] = useState(false);
@@ -9,6 +11,7 @@ const Popup = ({ isOpen, onClose }) => {
     const [fileUploadName, setFileUploadName] = useState('')
     const [fileName, setFileName] = useState('');
     const fileInputRef = useRef(null);
+    const dispatch = useDispatch();
 
     const handleFileNameChange = (event) => {
         event.preventDefault();
@@ -48,7 +51,8 @@ const Popup = ({ isOpen, onClose }) => {
         formData.append('extractText', isChecked)
         formData.append('fileName', fileName)
         formData.append('userId', store.getState().user.userId)
-        const response = await fileUpload(formData)
+        const response = await fileUpload(formData);
+        await dispatch(setFiles(response.files))
         handleFileDelete()
         setIsChecked(false)
         onClose()

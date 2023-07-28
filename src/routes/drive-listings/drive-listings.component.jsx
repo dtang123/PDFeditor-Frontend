@@ -3,14 +3,50 @@ import Store from "../../store/reducers"
 import { DrivePage, SideBar, FileListingContainer, FileListing, ListingColumn, Tabs, HeaderRow, NameContainer, DriveText, OwnerContainer, EditContainer, MiscContainer, MiscIcon } from "./drive-listings.styles"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShare, faTrash } from '@fortawesome/free-solid-svg-icons'
+import DeletePopup from "../popups/deletePopup/deletePopup.component"
+import { updateFiles } from "../../backend/update"
+import { useNavigate} from "react-router-dom"
+import { useDispatch } from "react-redux"
+import { setUserId } from "../../store/userSlice"
 
 const DriveListings = () => {
-    const [files, setFiles] = useState([])
-    const [activeTab, setActiveTab] = useState(1)
+    const [files, setFiles] = useState([]);
+    const [activeTab, setActiveTab] = useState(1);
     const temp = ["Your Mom", "Your Dad", "Your Sister", "Your Grandma", "Your Grandpa", "Your Cousin", "Your Aunt", "Your Uncle", "Your Brother"];
+    const [deletePopupOpen, setDeletePopupOpen] = useState(false);
+    const [fileInfo, setFileInfo] = useState({
+        fileName: "",
+        id: "",
+    })
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const updateUserData = async () => {
+        try {
+            console.log(localStorage.getItem('uid'))
+            await dispatch(setUserId(localStorage.getItem('uid')))
+            console.log(Store.getState().user.userId)
+            const files = await updateFiles(Store.getState().user.userId)
+            console.log(files.data.files)
+            setFiles(files.data.files)
+        } catch (err) {
+            console.log(err)
+        }
+        
+    }
 
     useEffect(() => {
-        setFiles(Store.getState().files.fileObjs)
+        console.log(Store.getState().files.fileObjs)
+        if (Store.getState().files.fileObjs.length == 0) {
+            if (localStorage.getItem('uid')) {
+                updateUserData()
+            } else {
+                navigate("/")
+            }
+        } else {
+            setFiles(Store.getState().files.fileObjs)
+        }
+        console.log(Store.getState().files.fileObjs)
     }, [Store.getState().files.fileObjs])
 
     const handleTabClick = (tabNum) => {
@@ -19,7 +55,20 @@ const DriveListings = () => {
 
     const getDateString = (date) => {
         const fileDate = new Date(date)
+        console.log(files)
         return `${fileDate.getMonth() + 1}/${fileDate.getDate()}/${fileDate.getFullYear()}`
+    }
+
+    const closePopup = () => {
+        setDeletePopupOpen(false)
+    }
+
+    const openDeletePopup = (fileName, fileId) => {
+        setFileInfo({
+            fileName: fileName,
+            id: fileId
+        })
+        setDeletePopupOpen(true)
     }
 
     return (
@@ -41,7 +90,7 @@ const DriveListings = () => {
                             <DriveText>Owner</DriveText>
                         </OwnerContainer>
                         <EditContainer>
-                            <DriveText>Last Edit</DriveText>
+                            <DriveText>Last Opened</DriveText>
                         </EditContainer>
                     </HeaderRow>
                     <ListingColumn>
@@ -60,12 +109,12 @@ const DriveListings = () => {
                                     </OwnerContainer>
                                     <EditContainer>
                                         <DriveText>
-                                            {getDateString(file.lastEdit)}
+                                            {getDateString(file.lastOpened)}
                                         </DriveText>
                                     </EditContainer>
                                     <MiscContainer>
                                         <MiscIcon icon={faShare} />
-                                        <MiscIcon icon={faTrash} />
+                                        <MiscIcon icon={faTrash} onClick={() => {openDeletePopup(file.fileName, file._id)}}/>
                                     </MiscContainer>
                                 </FileListing>
                             ))
@@ -83,6 +132,7 @@ const DriveListings = () => {
                         }
                     </ListingColumn>
             </FileListingContainer>
+            <DeletePopup isOpen={deletePopupOpen} onClose={closePopup} fileInfo={fileInfo}/>
         </DrivePage>
     )
 }
