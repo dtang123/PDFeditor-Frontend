@@ -106,4 +106,4 @@ export const HandleEmailSignUp = async (email, password) => {
       }
 }
 
-export const LogOut = () => {signOut()};
+export const LogOut = () => {signOut(auth)};
