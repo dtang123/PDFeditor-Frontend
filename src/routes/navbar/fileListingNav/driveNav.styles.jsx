@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 import { Page, RightContainer } from '../signInNav/navigation.styles'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export const AddFileDropdown = styled.div `
     position: relative;
@@ -46,15 +45,16 @@ export const AddFile = styled(RightContainer)`
     }
 `
 
-export const SearchIcon = styled.button `
+export const ClearButtonContainer = styled.div `
     background-color: transparent;
-    font-size: 18px;
-    padding: 6px 9px;
+    font-size: 15px;
+    padding: 12px 9px;
     margin-left:-45px;
     border:none;
     color: #6c6c6c;
     transition: all .4s;
     z-index: 10;
+    align-items: center;
     &:hover {
         transform: scale(1.2);
         cursor: pointer;
@@ -96,5 +96,5 @@ export const SearchContainer = styled.div `
 `
 
 export const MyDrivePage = styled(Page) `
-    overflow: hidden;
+    overflow-y: hidden;
 `

@@ -30,7 +30,7 @@ export const FileListingContainer = styled.div `
 export const ListingColumn = styled.div `
     flex: 1;
     overflow-y: scroll;
-    max-height: calc(100vh - 200px);
+    height: calc(100vh - 200px);
 `
 
 export const FileListing = styled.div `

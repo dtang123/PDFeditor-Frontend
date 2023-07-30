@@ -12,9 +12,7 @@ import DriveListings from './routes/drive-listings/drive-listings.component';
 const App = () => {
   return (
       <Routes>
-        <Route path="/my-drive" element={<DriveNavigation />}>
-          <Route index element={<DriveListings />} />
-        </Route>
+        <Route path="/my-drive/*" element={<DriveNavigation />} />
         <Route path="/" element={<SignInNavigation />}>
           <Route index element={<Login />} />
         </Route>

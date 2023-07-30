@@ -9,10 +9,9 @@ import { useNavigate} from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { setUserId } from "../../store/userSlice"
 
-const DriveListings = () => {
+const DriveListings = ({search, searching}) => {
     const [files, setFiles] = useState([]);
     const [activeTab, setActiveTab] = useState(1);
-    const temp = ["Your Mom", "Your Dad", "Your Sister", "Your Grandma", "Your Grandpa", "Your Cousin", "Your Aunt", "Your Uncle", "Your Brother"];
     const [deletePopupOpen, setDeletePopupOpen] = useState(false);
     const [fileInfo, setFileInfo] = useState({
         fileName: "",
@@ -21,11 +20,14 @@ const DriveListings = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    const filteredFiles = files.filter((file) =>
+        file.fileName.toLowerCase().includes(search.toLowerCase())
+    );
+
     const updateUserData = async () => {
         try {
             console.log(localStorage.getItem('uid'))
             await dispatch(setUserId(localStorage.getItem('uid')))
-            console.log(Store.getState().user.userId)
             const files = await updateFiles(Store.getState().user.userId)
             console.log(files.data.files)
             setFiles(files.data.files)
@@ -55,7 +57,6 @@ const DriveListings = () => {
 
     const getDateString = (date) => {
         const fileDate = new Date(date)
-        console.log(files)
         return `${fileDate.getMonth() + 1}/${fileDate.getDate()}/${fileDate.getFullYear()}`
     }
 
@@ -70,6 +71,11 @@ const DriveListings = () => {
         })
         setDeletePopupOpen(true)
     }
+
+    const handleFileDeleted = (fileId) => {
+        // Filter out the deleted file from the state and update the state with the new array
+        setFiles(files.filter((file) => file._id !== fileId));
+      };
 
     return (
         <DrivePage>
@@ -95,6 +101,31 @@ const DriveListings = () => {
                     </HeaderRow>
                     <ListingColumn>
                         {
+                            searching ? 
+                            filteredFiles.map((file) => (
+                                <FileListing>
+                                    <NameContainer>
+                                        <DriveText>
+                                            {file.fileName}
+                                        </DriveText>
+                                    </NameContainer>
+                                    <OwnerContainer>
+                                        <DriveText>
+                                            You
+                                        </DriveText>
+                                    </OwnerContainer>
+                                    <EditContainer>
+                                        <DriveText>
+                                            {getDateString(file.lastOpened)}
+                                        </DriveText>
+                                    </EditContainer>
+                                    <MiscContainer>
+                                        <MiscIcon icon={faShare} />
+                                        <MiscIcon icon={faTrash} onClick={() => {openDeletePopup(file.fileName, file._id)}}/>
+                                    </MiscContainer>
+                                </FileListing>
+                            ))
+                            :
                             files.map((file) => (
                                 <FileListing>
                                     <NameContainer>
@@ -119,20 +150,10 @@ const DriveListings = () => {
                                 </FileListing>
                             ))
                         }
-                        {
-                            temp.map((data) => (
-                                <FileListing>
-                                    <NameContainer>
-                                        <DriveText>
-                                            {data}
-                                        </DriveText>
-                                    </NameContainer>
-                                </FileListing>
-                            ))
-                        }
+                        
                     </ListingColumn>
             </FileListingContainer>
-            <DeletePopup isOpen={deletePopupOpen} onClose={closePopup} fileInfo={fileInfo}/>
+            <DeletePopup isOpen={deletePopupOpen} onClose={closePopup} fileInfo={fileInfo} handleFileDeleted={handleFileDeleted}/>
         </DrivePage>
     )
 }
