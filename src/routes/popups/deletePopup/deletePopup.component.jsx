@@ -4,7 +4,6 @@ import { DeleteCancelButton, DeletePopupContainer, DeleteSumbitButton } from "./
 import { deleteFile } from "../../../backend/update";
 import Store from "../../../store/reducers";
 import { useDispatch } from "react-redux";
-import { setFiles } from "../../../store/filesSlice";
 
 
 const DeletePopup = ({isOpen, onClose, fileInfo, handleFileDeleted}) => {
@@ -12,7 +11,7 @@ const DeletePopup = ({isOpen, onClose, fileInfo, handleFileDeleted}) => {
     const dispatch = useDispatch();
 
     const deleteSumbit = async () => {
-        await deleteFile(Store.getState().user.userId, fileInfo.id)
+        var res = await deleteFile(Store.getState().user.userId, fileInfo.id)
         handleFileDeleted(fileInfo.id)
         onClose()
     }

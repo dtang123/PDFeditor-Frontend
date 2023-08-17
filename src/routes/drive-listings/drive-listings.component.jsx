@@ -8,9 +8,10 @@ import { updateFiles } from "../../backend/update"
 import { useNavigate} from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { setUserId } from "../../store/userSlice"
+import { setFiles, setFilesMap } from "../../store/filesSlice"
 
 const DriveListings = ({search, searching}) => {
-    const [files, setFiles] = useState([]);
+    const [filesDisplay, setFilesDisplay] = useState([]);
     const [activeTab, setActiveTab] = useState(1);
     const [deletePopupOpen, setDeletePopupOpen] = useState(false);
     const [fileInfo, setFileInfo] = useState({
@@ -20,7 +21,7 @@ const DriveListings = ({search, searching}) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const filteredFiles = files.filter((file) =>
+    const filteredFiles = filesDisplay.filter((file) =>
         file.fileName.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -30,7 +31,9 @@ const DriveListings = ({search, searching}) => {
             await dispatch(setUserId(localStorage.getItem('uid')))
             const files = await updateFiles(Store.getState().user.userId)
             console.log(files.data.files)
+            setFilesDisplay(files.data.files)
             setFiles(files.data.files)
+            setFilesMap(files.data.files)
         } catch (err) {
             console.log(err)
         }
@@ -39,14 +42,14 @@ const DriveListings = ({search, searching}) => {
 
     useEffect(() => {
         console.log(Store.getState().files.fileObjs)
-        if (Store.getState().files.fileObjs.length == 0) {
+        if (Store.getState().files.fileObjs.length === 0) {
             if (localStorage.getItem('uid')) {
                 updateUserData()
             } else {
                 navigate("/")
             }
         } else {
-            setFiles(Store.getState().files.fileObjs)
+            setFilesDisplay(Store.getState().files.fileObjs)
         }
         console.log(Store.getState().files.fileObjs)
     }, [Store.getState().files.fileObjs])
@@ -74,8 +77,15 @@ const DriveListings = ({search, searching}) => {
 
     const handleFileDeleted = (fileId) => {
         // Filter out the deleted file from the state and update the state with the new array
-        setFiles(files.filter((file) => file._id !== fileId));
+        const newFiles = filesDisplay.filter((file) => file._id !== fileId)
+        setFilesDisplay(newFiles);
+        setFiles(newFiles)
+        setFilesMap(newFiles)
       };
+
+    const openFile = (fileId) => {
+        navigate(`/edit/${fileId}`)
+    }
 
     return (
         <DrivePage>
@@ -104,7 +114,7 @@ const DriveListings = ({search, searching}) => {
                             searching ? 
                             filteredFiles.map((file) => (
                                 <FileListing>
-                                    <NameContainer>
+                                    <NameContainer onDoubleClick={() => openFile(file._id)}>
                                         <DriveText>
                                             {file.fileName}
                                         </DriveText>
@@ -120,15 +130,15 @@ const DriveListings = ({search, searching}) => {
                                         </DriveText>
                                     </EditContainer>
                                     <MiscContainer>
-                                        <MiscIcon icon={faShare} />
-                                        <MiscIcon icon={faTrash} onClick={() => {openDeletePopup(file.fileName, file._id)}}/>
+                                        <MiscIcon title="Share" alt="Share" icon={faShare} />
+                                        <MiscIcon title="Delete" alt="Share" icon={faTrash} onClick={() => {openDeletePopup(file.fileName, file._id)}}/>
                                     </MiscContainer>
                                 </FileListing>
                             ))
                             :
-                            files.map((file) => (
+                            filesDisplay.map((file) => (
                                 <FileListing>
-                                    <NameContainer>
+                                    <NameContainer onDoubleClick={() => openFile(file._id)}>
                                         <DriveText>
                                             {file.fileName}
                                         </DriveText>

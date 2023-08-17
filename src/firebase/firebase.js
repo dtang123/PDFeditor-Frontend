@@ -52,7 +52,6 @@ export const auth = getAuth(app);
       });
   
       const data = await response.json();
-      console.log(data.files);
       return data;
     } catch (error) {
       console.error('Error calling backend API:', error);

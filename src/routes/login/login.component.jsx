@@ -5,7 +5,7 @@ import { HandleGoogleLogin, HandleEmailLogin, HandleEmailSignUp, HandleData } fr
 import { Navigate, useNavigate } from "react-router-dom";
 import store from '../../store/reducers';
 import { useDispatch } from "react-redux";
-import { setFiles } from "../../store/filesSlice";
+import { setFiles, setFilesMap } from "../../store/filesSlice";
 import jwt_decode from 'jwt-decode';
 import { setUserId } from "../../store/userSlice";
 
@@ -69,6 +69,7 @@ const Login = () => {
     const SetUser = async (userID, dataFiles) => {
       await dispatch(setUserId(userID))
       await dispatch(setFiles(dataFiles))
+      await dispatch(setFilesMap(dataFiles))
       console.log(store.getState().user.userId);
     }
 

@@ -15,6 +15,8 @@
     "bootstrap": "^5.3.0",
     "firebase": "^9.22.2",
     "jwt-decode": "^3.1.2",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^3.9.179",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-google-button": "^0.7.2",
