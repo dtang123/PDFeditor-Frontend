@@ -9,7 +9,7 @@ const fileSlice = createSlice({
 
   reducers: {
     setFiles: (state, action) => {
-      state.fileObjs = action.payload;
+      return { ...state, fileObjs: action.payload };
     },
     setFilesMap: (state, action) => {
         var new_map = {}
@@ -20,7 +20,7 @@ const fileSlice = createSlice({
             "file": file.file
           }
         })
-        state.fileObjsMap = new_map
+        return { ...state, fileObjsMap: new_map };
         
       }
     }

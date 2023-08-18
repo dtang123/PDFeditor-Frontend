@@ -1,6 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../../../node_modules/pdfjs-dist/web/pdf_viewer.css'; // Import the CSS for PDF viewer
 import Store from '../../store/reducers';
+import { setUserId } from "../../store/userSlice"
+import { setFiles, setFilesMap } from "../../store/filesSlice"
+
+import { updateFiles } from '../../backend/update';
+import { useDispatch } from 'react-redux';
+import { DocName, EditorContainer, PageContainer, PageNumber, ToolBar } from './fileEditor.styles';
+import { LeftContainer, RightContainer } from '../navbar/signInNav/navigation.styles';
+import { faShare } from '@fortawesome/free-solid-svg-icons';
+import { MiscIcon } from '../drive-listings/drive-listings.styles';
 
 const pdfJS = require('pdfjs-dist/legacy/build/pdf'); // Use the legacy build
 pdfJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJS.version}/pdf.worker.js`;
@@ -8,9 +17,37 @@ pdfJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const FileEditor = ({ fileId }) => {
   const [pdfDoc, setPdfDoc] = useState(null);
   const canvasRefs = useRef([]);
-  
+  const dispatch = useDispatch();
+  const [currFile, setCurrFile] = useState('')
+  const [docName, setDocName] = useState('')
+
+  const handleDocNameChange = (event) => {
+    event.preventDefault()
+    setDocName(event.target.value)
+  }
+
+  const updateUserData = async () => {
+    try {
+        console.log(localStorage.getItem('uid'))
+        await dispatch(setUserId(localStorage.getItem('uid')))
+        const files = await updateFiles(localStorage.getItem('uid'))
+        console.log(files.data.files)
+        await dispatch(setFiles(files.data.files))
+        await dispatch(setFilesMap(files.data.files))
+    } catch (err) {
+        console.log(err)
+    }
+  }
+
   useEffect(() => {
     async function loadPdf() {
+      if (!fileId || !Store.getState().files.fileObjsMap[fileId]) {
+        await updateUserData()
+      }
+      console.log(fileId)
+      console.log(Store.getState().files.fileObjsMap)
+      setCurrFile(Store.getState().files.fileObjsMap[fileId])
+      setDocName(currFile.fileName)
       const base64Data = Store.getState().files.fileObjsMap[fileId].file;
       const decodedData = atob(base64Data);
       const pdfBytes = new Uint8Array(decodedData.length);
@@ -28,8 +65,9 @@ const FileEditor = ({ fileId }) => {
         console.error('Error loading PDF:', error);
       }
     }
-
-    loadPdf();
+    if (fileId) {
+      loadPdf();
+    }
   }, [fileId]);
 
   const drawPage = async (pdfPage, canvas) => {
@@ -65,15 +103,32 @@ const FileEditor = ({ fileId }) => {
 
   return (
     <div>
-      {Array.from({ length: pdfDoc.numPages }).map((_, pageIndex) => (
-        <div key={pageIndex}>
-          <canvas
-            ref={(canvas) => {
-              canvasRefs.current[pageIndex] = canvas; // Store canvas ref in the array
-            }}
-          />
+      <ToolBar>
+        <LeftContainer>
+          <DocName value={docName} onChange={handleDocNameChange} />
+        </LeftContainer>
+        <RightContainer>
+          <MiscIcon icon={faShare} />
+        </RightContainer>
+      </ToolBar>
+      <EditorContainer>
+        <div>
+          {Array.from({ length: pdfDoc.numPages }).map((_, pageIndex) => (
+            <PageContainer key={pageIndex}>
+              <canvas
+                ref={(canvas) => {
+                  canvasRefs.current[pageIndex] = canvas; // Store canvas ref in the array
+                }}
+              />
+              <PageNumber>
+                <p>
+                  Page {pageIndex + 1}/{pdfDoc.numPages}
+                </p>
+              </PageNumber>
+            </PageContainer>
+          ))}
         </div>
-      ))}
+      </EditorContainer>
     </div>
   );
 };

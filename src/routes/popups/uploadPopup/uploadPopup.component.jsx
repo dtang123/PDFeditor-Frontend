@@ -47,6 +47,9 @@ const Popup = ({ isOpen, onClose }) => {
         if (fileName) {
             setFileName(fileInputRef.current.files[0].name)
         }
+        else {
+            setFileName('Untitled Document')
+        }
         formData.append('file', file)
         formData.append('extractText', isChecked)
         formData.append('fileName', fileName)

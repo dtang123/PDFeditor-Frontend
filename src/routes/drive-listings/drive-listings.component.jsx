@@ -32,8 +32,8 @@ const DriveListings = ({search, searching}) => {
             const files = await updateFiles(Store.getState().user.userId)
             console.log(files.data.files)
             setFilesDisplay(files.data.files)
-            setFiles(files.data.files)
-            setFilesMap(files.data.files)
+            await dispatch(setFiles(files.data.files))
+            await dispatch(setFilesMap(files.data.files))
         } catch (err) {
             console.log(err)
         }
@@ -51,7 +51,7 @@ const DriveListings = ({search, searching}) => {
         } else {
             setFilesDisplay(Store.getState().files.fileObjs)
         }
-        console.log(Store.getState().files.fileObjs)
+        console.log(Store.getState().files.fileObjsMap)
     }, [Store.getState().files.fileObjs])
 
     const handleTabClick = (tabNum) => {
