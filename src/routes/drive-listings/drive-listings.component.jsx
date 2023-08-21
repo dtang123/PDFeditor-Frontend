@@ -52,7 +52,7 @@ const DriveListings = ({search, searching}) => {
             setFilesDisplay(Store.getState().files.fileObjs)
         }
         console.log(Store.getState().files.fileObjsMap)
-    }, [Store.getState().files.fileObjs])
+    }, [Store.getState().user.userId])
 
     const handleTabClick = (tabNum) => {
         setActiveTab(tabNum)
