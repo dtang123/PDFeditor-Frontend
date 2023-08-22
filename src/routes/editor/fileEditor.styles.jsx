@@ -8,6 +8,7 @@ export const ToolBar = styled(NavigationContainer) `
     background-color: #c3d9de;
     display: flex;
     margin-bottom: 0;
+    z-index: 10;
 `
 
 export const EditorContainer = styled.div `

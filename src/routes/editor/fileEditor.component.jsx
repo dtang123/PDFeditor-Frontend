@@ -9,6 +9,7 @@ import { DocName, EditorContainer, PageContainer, PageNumber, ToolBar } from './
 import { LeftContainer, RightContainer } from '../navbar/signInNav/navigation.styles';
 import { faDownload, faPrint, faShare } from '@fortawesome/free-solid-svg-icons';
 import { MiscContainer, MiscIcon } from '../drive-listings/drive-listings.styles';
+import { text } from '@fortawesome/fontawesome-svg-core';
 
 const pdfJS = require('pdfjs-dist/legacy/build/pdf');
 pdfJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJS.version}/pdf.worker.js`;
@@ -21,9 +22,6 @@ const FileEditor = ({ fileId }) => {
   const [docName, setDocName] = useState('');
   const [addingTextBox, setAddingTextBox] = useState(false);
   const [textBoxes, setTextBoxes] = useState([]);
-  const [textBoxInput, setTextBoxInput] = useState('');
-  const [clickX, setClickX] = useState(null);
-  const [clickY, setClickY] = useState(null);
   const [selectedTextBoxIndex, setSelectedTextBoxIndex] = useState(null);
   const [selectedTextBoxInput, setSelectedTextBoxInput] = useState('');
 
@@ -36,6 +34,24 @@ const handleTextBoxInputChange = (event) => {
     setAddingTextBox(!addingTextBox);
   };
 
+  const handleCanvasDblClick = (event, pageIndex) => {
+    event.preventDefault();
+    const canvasRect = event.target.getBoundingClientRect();
+    const clickX = event.clientX - canvasRect.left;
+    const clickY = event.clientY - canvasRect.top;
+    const clickedTextBox = textBoxes.find(
+      (textBox, index) =>
+        textBox.pageIndex === pageIndex &&
+        Math.abs(textBox.x - clickX) < 25 && // Adjust the tolerance as needed
+        Math.abs(textBox.y - clickY) < 10 // Adjust the tolerance as needed
+    );
+    if (clickedTextBox) {
+      setSelectedTextBoxIndex(textBoxes.indexOf(clickedTextBox));
+      setSelectedTextBoxInput(clickedTextBox.text);
+    }
+    console.log(textBoxes)
+  }
+
   const handleCanvasClick = (event, pageIndex) => {
     event.preventDefault();
     const canvasRect = event.target.getBoundingClientRect();
@@ -43,34 +59,6 @@ const handleTextBoxInputChange = (event) => {
     const offsetY = event.clientY - canvasRect.top;
     if (addingTextBox) {
       addTextBox(pageIndex, offsetX, offsetY);
-    } else {
-      const clickedTextBox = textBoxes.find(
-        (textBox, index) =>
-          textBox.pageIndex === pageIndex &&
-          Math.abs(textBox.x - clickX) < 5 && // Adjust the tolerance as needed
-          Math.abs(textBox.y - clickY) < 5 // Adjust the tolerance as needed
-      );
-      if (clickedTextBox) {
-        setSelectedTextBoxIndex(textBoxes.indexOf(clickedTextBox));
-        setSelectedTextBoxInput(clickedTextBox.text);
-      }
-    }
-    if (!addingTextBox) {
-      const clickedTextBox = textBoxes.find(
-        (textBox, index) =>
-          textBox.pageIndex === pageIndex &&
-          offsetX >= textBox.x &&
-          offsetX <= textBox.x + textBox.width &&
-          offsetY >= textBox.y - 12 && // Adjust the tolerance as needed
-          offsetY <= textBox.y + 8 // Adjust the tolerance as needed
-      );
-      if (clickedTextBox) {
-        setSelectedTextBoxIndex(textBoxes.indexOf(clickedTextBox));
-        setSelectedTextBoxInput(clickedTextBox.text);
-      } else {
-        setSelectedTextBoxIndex(null);
-        setSelectedTextBoxInput('');
-      }
     }
   };
 
@@ -117,7 +105,7 @@ const handleTextBoxInputChange = (event) => {
           };
         }
         return textBox;
-      });
+      }).filter(textBox => textBox.text !== '');
   
       setTextBoxes(updatedTextBoxes);
       setSelectedTextBoxIndex(null);
@@ -271,6 +259,7 @@ const handleTextBoxInputChange = (event) => {
                   canvasRefs.current[pageIndex] = canvas; // Store canvas ref in the array
                 }}
                 onClick={(event) => handleCanvasClick(event, pageIndex)}
+                onDoubleClick={(event) => handleCanvasDblClick(event, pageIndex)}
               />
               <PageNumber>
                 <p>
@@ -302,7 +291,7 @@ const handleTextBoxInputChange = (event) => {
               canvasRefs.current[textBoxes[selectedTextBoxIndex]?.pageIndex]?.offsetTop +
               textBoxes[selectedTextBoxIndex]?.y -
               12,
-            zIndex: 10,
+            zIndex: 9,
           }}
         />
       )}
