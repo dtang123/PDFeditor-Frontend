@@ -1,5 +1,6 @@
 import axios from 'axios'
-// Send file to backend when user uploads file
+
+
 export const updateFiles = async (userId) => {
     console.log(userId)
     try {
@@ -28,5 +29,22 @@ export const deleteFile = async (userId, fileId) => {
         return response
     } catch (error) {
       console.error('Error calling backend API:', error);
+    }
+}
+
+export const updateFile = async (file, userId) => {
+    try {
+        const formData = new FormData();
+        formData.append('_id', file._id)
+        formData.append('fileName', file.fileName)
+        formData.append('file', file.file);
+        formData.append('curr_user', userId)
+        formData.append('file_owner', file.user)
+        formData.append('lastOpened', file.lastOpened)
+        formData.append('textBoxes', JSON.stringify(file.textBoxes))
+        const res = await axios.put(`http://localhost:3001/api/upload/update-file`, formData)
+        return res.data;
+    } catch (error) {
+        console.error('Error calling backend API:', error);
     }
 }

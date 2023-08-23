@@ -14,10 +14,21 @@ const fileSlice = createSlice({
     setFilesMap: (state, action) => {
         var new_map = {}
         action.payload.map((file) => {
-          new_map[file._id] = {
-            "fileName": file.fileName,
-            "lastOpened": file.lastOpened,
-            "file": file.file
+          if (file.textBoxes) {
+            new_map[file._id] = {
+              "fileName": file.fileName,
+              'user': file.user,
+              "lastOpened": file.lastOpened,
+              "file": file.file,
+              'textBoxes': file.textBoxes
+            }
+          } else {
+            new_map[file._id] = {
+              "fileName": file.fileName,
+              'user': file.user,
+              "lastOpened": file.lastOpened,
+              "file": file.file
+            }
           }
         })
         return { ...state, fileObjsMap: new_map };

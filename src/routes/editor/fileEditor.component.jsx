@@ -3,11 +3,11 @@ import '../../../node_modules/pdfjs-dist/web/pdf_viewer.css';
 import Store from '../../store/reducers';
 import { setUserId } from "../../store/userSlice";
 import { setFiles, setFilesMap } from "../../store/filesSlice";
-import { updateFiles } from '../../backend/update';
+import { updateFiles, updateFile } from '../../backend/update';
 import { useDispatch } from 'react-redux';
 import { DocName, EditorContainer, PageContainer, PageNumber, ToolBar } from './fileEditor.styles';
 import { LeftContainer, RightContainer } from '../navbar/signInNav/navigation.styles';
-import { faDownload, faPrint, faShare } from '@fortawesome/free-solid-svg-icons';
+import { faDownload, faPrint, faSave, faShare } from '@fortawesome/free-solid-svg-icons';
 import { MiscContainer, MiscIcon } from '../drive-listings/drive-listings.styles';
 import { text } from '@fortawesome/fontawesome-svg-core';
 
@@ -24,6 +24,7 @@ const FileEditor = ({ fileId }) => {
   const [textBoxes, setTextBoxes] = useState([]);
   const [selectedTextBoxIndex, setSelectedTextBoxIndex] = useState(null);
   const [selectedTextBoxInput, setSelectedTextBoxInput] = useState('');
+  const [changed, setChanged] = useState(false)
 
 // Update the selected text box input when the input changes
 const handleTextBoxInputChange = (event) => {
@@ -80,6 +81,7 @@ const handleTextBoxInputChange = (event) => {
   const handleDocNameChange = (event) => {
     event.preventDefault();
     setDocName(event.target.value);
+    setChanged(true)
   };
 
   const updateUserData = async () => {
@@ -110,8 +112,31 @@ const handleTextBoxInputChange = (event) => {
       setTextBoxes(updatedTextBoxes);
       setSelectedTextBoxIndex(null);
       setSelectedTextBoxInput('');
+      setChanged(true)
     }
   };
+
+  const saveDoc = async () => {
+    const newDoc = {
+      '_id': fileId,
+      'user': currFile.user,
+      'fileName': docName,
+      'file': currFile.file,
+      'lastOpened': Date.now(),
+      'textBoxes': textBoxes,
+    }
+    const newFiles = Store.getState().files.fileObjs.map((file) => {
+      if (file._id === fileId) {
+        return newDoc
+      }
+      return file
+    })
+    dispatch(setFiles(newFiles))
+    dispatch(setFilesMap(newFiles))
+    setChanged(false)
+    const a = await updateFile(newDoc, Store.getState().user.userId)
+    console.log(a)
+  }
   
   
 
@@ -122,8 +147,12 @@ const handleTextBoxInputChange = (event) => {
       }
       console.log(fileId);
       console.log(Store.getState().files.fileObjsMap);
-      setCurrFile(Store.getState().files.fileObjsMap[fileId]);
-      setDocName(Store.getState().files.fileObjsMap[fileId].fileName);
+      const file = Store.getState().files.fileObjsMap[fileId]
+      setCurrFile(file);
+      setDocName(file.fileName);
+      if (file.textBoxes) {
+        setTextBoxes(file.textBoxes)
+      }
       const base64Data = Store.getState().files.fileObjsMap[fileId].file;
       const decodedData = atob(base64Data);
       const pdfBytes = new Uint8Array(decodedData.length);
@@ -144,7 +173,7 @@ const handleTextBoxInputChange = (event) => {
     if (fileId) {
       loadPdf();
     }
-  }, [fileId])
+  }, [fileId, ])
 
   useEffect(() => {
     const handleKeyUp = (event) => {
@@ -228,6 +257,15 @@ const handleTextBoxInputChange = (event) => {
     renderNextCanvas(0); // Start rendering from the first canvas
   }, [pdfDoc, textBoxes, selectedTextBoxIndex, selectedTextBoxInput]);
 
+  useEffect(() => {
+    if (changed) {
+      setTimeout(() => {
+        if (changed) {
+          saveDoc()
+        }
+      }, 30000)
+    }
+  }, [changed])
 
   if (!pdfDoc || !fileId) {
     return <div>Loading...</div>;
@@ -245,6 +283,10 @@ const handleTextBoxInputChange = (event) => {
           </button>
         </RightContainer>
         <MiscContainer>
+          {
+            changed &&
+            <MiscIcon icon={faSave} onClick={saveDoc}/>
+          }
           <MiscIcon icon={faDownload} />
           <MiscIcon icon={faPrint} />
           <MiscIcon icon={faShare} />
