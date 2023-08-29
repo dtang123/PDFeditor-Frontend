@@ -50,6 +50,9 @@ export const HeaderRow = styled.div `
 `
 
 export const NameContainer = styled.div `
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
     width: 60%;
 `
 
@@ -62,6 +65,7 @@ export const EditContainer = styled.div `
 `
 export const DriveText = styled.h6 `
     margin: 0;
+    margin-right: 5%;
     transition: all 0.2s ease;
     ${FileListing}:hover & {
         font-size: 20px; /* Increase the font size on hover */

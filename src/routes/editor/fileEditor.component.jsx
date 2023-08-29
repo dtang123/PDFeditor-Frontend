@@ -7,9 +7,11 @@ import { updateFiles, updateFile } from '../../backend/update';
 import { useDispatch } from 'react-redux';
 import { DocName, EditorContainer, PageContainer, PageNumber, ToolBar } from './fileEditor.styles';
 import { LeftContainer, RightContainer } from '../navbar/signInNav/navigation.styles';
-import { faDownload, faPrint, faSave, faShare } from '@fortawesome/free-solid-svg-icons';
+import { faDownload, faSave, faShare } from '@fortawesome/free-solid-svg-icons';
 import { MiscContainer, MiscIcon } from '../drive-listings/drive-listings.styles';
-import { text } from '@fortawesome/fontawesome-svg-core';
+import { PDFDocument, rgb } from 'pdf-lib';
+import SharePopup from '../popups/sharePopup/sharePopup.component';
+
 
 const pdfJS = require('pdfjs-dist/legacy/build/pdf');
 pdfJS.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfJS.version}/pdf.worker.js`;
@@ -24,7 +26,12 @@ const FileEditor = ({ fileId }) => {
   const [textBoxes, setTextBoxes] = useState([]);
   const [selectedTextBoxIndex, setSelectedTextBoxIndex] = useState(null);
   const [selectedTextBoxInput, setSelectedTextBoxInput] = useState('');
-  const [changed, setChanged] = useState(false)
+  const [changed, setChanged] = useState(false);
+  const [sharePopupOpen, setSharePopupOpen] = useState(false);
+  const [fileInfo, setFileInfo] = useState({
+    fileName: "",
+    id: "",
+})
 
 // Update the selected text box input when the input changes
 const handleTextBoxInputChange = (event) => {
@@ -60,6 +67,10 @@ const handleTextBoxInputChange = (event) => {
     const offsetY = event.clientY - canvasRect.top;
     if (addingTextBox) {
       addTextBox(pageIndex, offsetX, offsetY);
+    }
+    if (selectedTextBoxIndex !== null) {
+      setSelectedTextBoxIndex(null)
+      setSelectedTextBoxInput('')
     }
   };
 
@@ -137,6 +148,120 @@ const handleTextBoxInputChange = (event) => {
     const a = await updateFile(newDoc, Store.getState().user.userId)
     console.log(a)
   }
+
+  const renderNextCanvas = async (pageIndex) => {
+    if (pageIndex >= canvasRefs.current.length) {
+      return; // All canvases are rendered
+    }
+
+    const canvas = canvasRefs.current[pageIndex];
+    const pdfPage = await pdfDoc.getPage(pageIndex + 1);
+
+    const context = canvas.getContext('2d');
+
+    // Set canvas dimensions
+    const viewport = pdfPage.getViewport({ scale: 1 });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    // Calculate the viewport dimensions
+
+    // Clear the canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the PDF content
+    const renderContext = {
+      canvasContext: context,
+      viewport,
+    };
+    await pdfPage.render(renderContext).promise;
+
+    // Draw the text boxes
+    context.font = '12px Arial';
+    context.fillStyle = 'black';
+    const inputWidth = context.measureText(selectedTextBoxInput).width + 5;
+    textBoxes.forEach((textBox) => {
+      if (textBox.pageIndex === pageIndex) {
+        context.fillStyle = 'black';
+        context.fillText(textBox.text, textBox.x, textBox.y);
+
+        if (selectedTextBoxIndex === textBoxes.indexOf(textBox)) {
+          context.fillStyle = 'white';
+          context.fillRect(
+            textBox.x,
+            textBox.y - 12,
+            inputWidth,
+            20
+          ); // Use inputWidth here
+          context.strokeStyle = 'black';
+          context.lineWidth = 1;
+          context.strokeRect(
+            textBox.x,
+            textBox.y - 12,
+            inputWidth,
+            20
+          );
+        }
+      }
+    });
+
+    // Render the next canvas
+    renderNextCanvas(pageIndex + 1);
+  };
+
+  const openSharePopup = () => {
+    setFileInfo({
+      fileName: docName,
+      id: fileId
+    })
+    setSharePopupOpen(true)
+  }
+
+  const closePopup = () => {
+    setSharePopupOpen(false)
+  }
+
+  const handleDownload = async () => {
+    if (!pdfDoc) {
+      return;
+    }
+    const pdfBytes = currFile.file;
+    const modifiedPdfDoc = await PDFDocument.load(pdfBytes); // Load the original PDF's bytes
+  
+    const pages = modifiedPdfDoc.getPages();
+    pages.forEach((modifiedPage, pageIndex) => {
+      const textWidth = 200; // Adjust as needed
+      const textHeight = 20; // Adjust as needed
+  
+      const { width, height } = modifiedPage.getSize();
+  
+      const textBoxesOnPage = textBoxes.filter(textBox => textBox.pageIndex === pageIndex);
+  
+      textBoxesOnPage.forEach(textBox => {
+        const { x, y, text } = textBox;
+  
+        const drawTextOptions = {
+          x: x,
+          y: height - y - textHeight, // Adjust for PDF coordinate system
+          size: 12, // Adjust as needed
+        };
+  
+        modifiedPage.drawText(text, drawTextOptions);
+      });
+    });
+  
+    const modifiedPdfBytes = await modifiedPdfDoc.save();
+  
+    const blob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+  
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${docName}.pdf`;
+    a.click();
+  
+    URL.revokeObjectURL(url);
+  };
   
   
 
@@ -166,6 +291,9 @@ const handleTextBoxInputChange = (event) => {
         const loadingTask = pdfJS.getDocument({ url: dataUrl });
         const loadedPdfDoc = await loadingTask.promise;
         setPdfDoc(loadedPdfDoc);
+        loadedPdfDoc.promise.then(() => {
+          renderNextCanvas(0); // Start rendering from the first canvas
+        });
       } catch (error) {
         console.error('Error loading PDF:', error);
       }
@@ -193,68 +321,8 @@ const handleTextBoxInputChange = (event) => {
     if (!pdfDoc || !canvasRefs.current.length) {
       return;
     }
-  
-    const renderNextCanvas = async (pageIndex) => {
-      if (pageIndex >= canvasRefs.current.length) {
-        return; // All canvases are rendered
-      }
-  
-      const canvas = canvasRefs.current[pageIndex];
-      const pdfPage = await pdfDoc.getPage(pageIndex + 1);
-  
-      const context = canvas.getContext('2d');
-  
-      // Set canvas dimensions
-      const viewport = pdfPage.getViewport({ scale: 1 });
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-  
-      // Calculate the viewport dimensions
-  
-      // Clear the canvas
-      context.clearRect(0, 0, canvas.width, canvas.height);
-  
-      // Draw the PDF content
-      const renderContext = {
-        canvasContext: context,
-        viewport,
-      };
-      await pdfPage.render(renderContext).promise;
-  
-      // Draw the text boxes
-      context.font = '12px Arial';
-      context.fillStyle = 'black';
-      const inputWidth = context.measureText(selectedTextBoxInput).width + 5;
-      textBoxes.forEach((textBox) => {
-        if (textBox.pageIndex === pageIndex) {
-          context.fillStyle = 'black';
-          context.fillText(textBox.text, textBox.x, textBox.y);
-
-          if (selectedTextBoxIndex === textBoxes.indexOf(textBox)) {
-            context.fillStyle = 'white';
-            context.fillRect(
-              textBox.x,
-              textBox.y - 12,
-              inputWidth,
-              20
-            ); // Use inputWidth here
-            context.strokeStyle = 'black';
-            context.lineWidth = 1;
-            context.strokeRect(
-              textBox.x,
-              textBox.y - 12,
-              inputWidth,
-              20
-            );
-          }
-        }
-      });
-  
-      // Render the next canvas
-      renderNextCanvas(pageIndex + 1);
-    };
-  
-    renderNextCanvas(0); // Start rendering from the first canvas
+    
+    renderNextCanvas(0); 
   }, [pdfDoc, textBoxes, selectedTextBoxIndex, selectedTextBoxInput]);
 
   useEffect(() => {
@@ -275,7 +343,7 @@ const handleTextBoxInputChange = (event) => {
     <div>
       <ToolBar>
         <LeftContainer>
-          <DocName value={docName} onChange={handleDocNameChange} />
+          <DocName value={docName} onChange={handleDocNameChange}/>
         </LeftContainer>
         <RightContainer>
           <button onClick={toggleAddTextBoxMode}>
@@ -287,9 +355,8 @@ const handleTextBoxInputChange = (event) => {
             changed &&
             <MiscIcon icon={faSave} onClick={saveDoc}/>
           }
-          <MiscIcon icon={faDownload} />
-          <MiscIcon icon={faPrint} />
-          <MiscIcon icon={faShare} />
+          <MiscIcon icon={faDownload} onClick={handleDownload}/>
+          <MiscIcon icon={faShare} onClick={openSharePopup}/>
         </MiscContainer>
       </ToolBar>
       <EditorContainer>
@@ -337,6 +404,7 @@ const handleTextBoxInputChange = (event) => {
           }}
         />
       )}
+      <SharePopup isOpen={sharePopupOpen} onClose={closePopup} fileInfo={fileInfo}/>
     </div>
   );
 };

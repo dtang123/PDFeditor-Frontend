@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react"
 import Store from "../../store/reducers"
-import { DrivePage, SideBar, FileListingContainer, FileListing, ListingColumn, Tabs, HeaderRow, NameContainer, DriveText, OwnerContainer, EditContainer, MiscContainer, MiscIcon } from "./drive-listings.styles"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faShare, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { DrivePage, SideBar, FileListingContainer, ListingColumn, Tabs, HeaderRow, NameContainer, DriveText, OwnerContainer, EditContainer } from "./drive-listings.styles"
+
 import DeletePopup from "../popups/deletePopup/deletePopup.component"
 import { updateFiles } from "../../backend/update"
 import { useNavigate} from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { setUserId } from "../../store/userSlice"
 import { setFiles, setFilesMap } from "../../store/filesSlice"
+import SharePopup from "../popups/sharePopup/sharePopup.component"
+import MyDriveDocs from "../my-drive-docs/my-drive-docs.component"
+import ShareDocs from "../share-docs/share-docs.component"
 
 const DriveListings = ({search, searching}) => {
     const [filesDisplay, setFilesDisplay] = useState([]);
@@ -18,6 +20,7 @@ const DriveListings = ({search, searching}) => {
         fileName: "",
         id: "",
     })
+    const [sharePopupOpen, setSharePopupOpen] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -65,6 +68,8 @@ const DriveListings = ({search, searching}) => {
 
     const closePopup = () => {
         setDeletePopupOpen(false)
+        setSharePopupOpen(false)
+        setFileInfo(null)
     }
 
     const openDeletePopup = (fileName, fileId) => {
@@ -72,7 +77,18 @@ const DriveListings = ({search, searching}) => {
             fileName: fileName,
             id: fileId
         })
+        setSharePopupOpen(false)
         setDeletePopupOpen(true)
+    }
+
+    const openSharePopup = (file) => {
+        setFileInfo({
+            id: file._id,
+            fileName: file.fileName,
+            user: file.user,
+        })
+        setSharePopupOpen(true)
+        setDeletePopupOpen(false)
     }
 
     const handleFileDeleted = (fileId) => {
@@ -97,6 +113,8 @@ const DriveListings = ({search, searching}) => {
                     Shared With Me
                 </Tabs>
             </SideBar>
+                {  
+                activeTab === 1 ?
                 <FileListingContainer>
                     <HeaderRow>
                         <NameContainer>
@@ -113,57 +131,31 @@ const DriveListings = ({search, searching}) => {
                         {
                             searching ? 
                             filteredFiles.map((file) => (
-                                <FileListing>
-                                    <NameContainer onDoubleClick={() => openFile(file._id)}>
-                                        <DriveText>
-                                            {file.fileName}
-                                        </DriveText>
-                                    </NameContainer>
-                                    <OwnerContainer>
-                                        <DriveText>
-                                            You
-                                        </DriveText>
-                                    </OwnerContainer>
-                                    <EditContainer>
-                                        <DriveText>
-                                            {getDateString(file.lastOpened)}
-                                        </DriveText>
-                                    </EditContainer>
-                                    <MiscContainer>
-                                        <MiscIcon title="Share" alt="Share" icon={faShare} />
-                                        <MiscIcon title="Delete" alt="Share" icon={faTrash} onClick={() => {openDeletePopup(file.fileName, file._id)}}/>
-                                    </MiscContainer>
-                                </FileListing>
+                                <MyDriveDocs
+                                    file={file}
+                                    openFile={openFile}
+                                    openDeletePopup={openDeletePopup}
+                                    openSharePopup={openSharePopup}
+                                    getDateString={getDateString} />
                             ))
                             :
                             filesDisplay.map((file) => (
-                                <FileListing>
-                                    <NameContainer onDoubleClick={() => openFile(file._id)}>
-                                        <DriveText>
-                                            {file.fileName}
-                                        </DriveText>
-                                    </NameContainer>
-                                    <OwnerContainer>
-                                        <DriveText>
-                                            You
-                                        </DriveText>
-                                    </OwnerContainer>
-                                    <EditContainer>
-                                        <DriveText>
-                                            {getDateString(file.lastOpened)}
-                                        </DriveText>
-                                    </EditContainer>
-                                    <MiscContainer>
-                                        <MiscIcon icon={faShare} />
-                                        <MiscIcon icon={faTrash} onClick={() => {openDeletePopup(file.fileName, file._id)}}/>
-                                    </MiscContainer>
-                                </FileListing>
+                                <MyDriveDocs
+                                    file={file}
+                                    openFile={openFile}
+                                    openDeletePopup={openDeletePopup}
+                                    openSharePopup={openSharePopup}
+                                    getDateString={getDateString} />
                             ))
                         }
                         
                     </ListingColumn>
             </FileListingContainer>
+            :
+                <ShareDocs search={search} searching={searching} getDateString={getDateString}/>
+            }
             <DeletePopup isOpen={deletePopupOpen} onClose={closePopup} fileInfo={fileInfo} handleFileDeleted={handleFileDeleted}/>
+            <SharePopup isOpen={sharePopupOpen} onClose={closePopup} fileInfo={fileInfo}/>
         </DrivePage>
     )
 }
