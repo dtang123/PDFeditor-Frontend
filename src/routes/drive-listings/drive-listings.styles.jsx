@@ -34,6 +34,7 @@ export const ListingColumn = styled.div `
 `
 
 export const FileListing = styled.div `
+    cursor: pointer;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -80,6 +81,7 @@ export const MiscContainer = styled.div `
 `
 
 export const MiscIcon = styled(FontAwesomeIcon)`
+    cursor: pointer;
     transition: all 0.2s ease;
     &:hover {
         transform: scale(1.3)

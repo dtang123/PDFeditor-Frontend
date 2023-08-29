@@ -8,6 +8,7 @@ import { LargeOwnerContainer, SmallNameContainer } from "./share-docs.styled";
 const ShareDocs = ({search, searching, getDateString}) => {
     const [sharedFiles, setSharedFiles] = useState([]);
     const user = useSelector((state) => state.user.userId);
+    const [isRefreshCooldown, setIsRefreshCooldown] = useState(false);
 
     const filteredFiles = sharedFiles.filter((file) =>
         file.fileName.toLowerCase().includes(search.toLowerCase())
@@ -18,6 +19,16 @@ const ShareDocs = ({search, searching, getDateString}) => {
         setSharedFiles(response.data.files);
     }
 
+    const handleRefreshClick = async () => {
+        if (!isRefreshCooldown) {
+            setIsRefreshCooldown(true);
+            await retrieveShared();
+            setTimeout(() => {
+                setIsRefreshCooldown(false);
+            }, 5000); // 5000 milliseconds cooldown
+        }
+    };
+
     useEffect(() => {
         retrieveShared()
     }, [])
@@ -27,7 +38,10 @@ const ShareDocs = ({search, searching, getDateString}) => {
             <HeaderRow>
                 <SmallNameContainer>
                     <DriveText>Name</DriveText>
-                    <MiscIcon icon={faRefresh} />
+                    {
+                        !isRefreshCooldown &&
+                        <MiscIcon icon={faRefresh} onClick={handleRefreshClick} />
+                    }
                 </SmallNameContainer>
                 <LargeOwnerContainer>
                     <DriveText>Owner</DriveText>

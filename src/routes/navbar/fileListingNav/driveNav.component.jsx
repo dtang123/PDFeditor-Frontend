@@ -88,7 +88,7 @@ const DriveNavigation = () => {
                     }
                 </SearchContainer>
                 <AddFileDropdown>
-                    <div onClick={logOut}>
+                    <div onClick={logOut} style={{ cursor: "pointer" }} >
                         Logout
                     </div>
                     <AddFile onClick={changeDropdown}>

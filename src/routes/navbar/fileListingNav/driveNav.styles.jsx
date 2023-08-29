@@ -21,6 +21,7 @@ export const DropdownContainer = styled.div `
 `
 
 export const FileOptions = styled.div `
+    cursor: pointer;
     color: black;
     padding: 12px 16px;
     text-decoration: none;
@@ -33,6 +34,7 @@ export const FileOptions = styled.div `
 `
 
 export const AddFile = styled(RightContainer)`
+    cursor: pointer;
     text-align: center;
     margin: 20px;
     padding: 0 10%;
